@@ -10,16 +10,25 @@ import (
 )
 
 func main() {
-	dict := map[string][]byte{
-		"one":   []byte("1"),
-		"two":   []byte("2"),
-		"three": []byte("3"),
-		"four":  []byte("4"),
-		"five":  []byte("5"),
-		"six":   []byte("6"),
-		"seven": []byte("7"),
-		"eight": []byte("8"),
-		"nine":  []byte("9"),
+	dict := map[string]string{
+		"one":   "1",
+		"two":   "2",
+		"three": "3",
+		"four":  "4",
+		"five":  "5",
+		"six":   "6",
+		"seven": "7",
+		"eight": "8",
+		"nine":  "9",
+		"1":     "1",
+		"2":     "2",
+		"3":     "3",
+		"4":     "4",
+		"5":     "5",
+		"6":     "6",
+		"7":     "7",
+		"8":     "8",
+		"9":     "9",
 	}
 
 	inputFile, err := os.Open("../input.txt")
@@ -32,53 +41,33 @@ func main() {
 
 	var total int32 = 0
 	for scanner.Scan() {
-		re := regexp.MustCompile(`one|two|three|four|five|six|seven|eight|nine`)
-		text := re.ReplaceAllFunc([]byte(scanner.Text()), func(s []byte) []byte {
-			return dict[string(s)]
-		})
-		left := 0
-		right := len(text) - 1
+		re := regexp.MustCompile(`one|two|three|four|five|six|seven|eight|nine|[1-9]`)
 		firstLetter := ""
 		lastLetter := ""
+		text := scanner.Text()
 
-		for {
-			if left > right {
-				break
-			}
+		for i := 0; i < len(text); i++ {
+			match := re.FindString(text[i:])
 
-			if left == right {
-				lastLetter = firstLetter
+			if match == "" {
+				continue
 			}
 
 			if firstLetter == "" {
-				first := string(text[left])
-				_, err := strconv.Atoi(first)
-
-				if err != nil {
-					left++
+				if len(match) > 0 {
+					firstLetter = dict[match]
+					lastLetter = dict[match]
 					continue
 				}
-				firstLetter = first
 			}
 
-			if lastLetter == "" {
-				last := string(text[right])
-				_, err2 := strconv.Atoi(last)
-
-				if err2 != nil {
-					right--
-					continue
-				}
-
-				lastLetter = last
+			if len(match) > 0 {
+				lastLetter = dict[match]
 			}
-
-			newVal, _ := strconv.Atoi(firstLetter + lastLetter)
-
-			total += int32(newVal)
-			break
-
 		}
+
+		newVal, _ := strconv.Atoi(firstLetter + lastLetter)
+		total += int32(newVal)
 	}
 	fmt.Println(total)
 }
